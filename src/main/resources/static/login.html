@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Fala Sebrae</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <div class="auth-container">
+        
+        <!-- Login Box -->
+        <div id="login-box" class="auth-box">
+            <h2>Entrar no Fala Sebrae</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="login-email">E-mail</label>
+                    <input type="email" id="login-email" required placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="login-senha">Senha</label>
+                    <input type="password" id="login-senha" required placeholder="********">
+                </div>
+                <button type="submit" class="btn-block">Entrar</button>
+            </form>
+            <div class="toggle-auth">
+                <p>Não tem uma conta? <a href="#" onclick="toggleAuthMode()">Cadastre-se</a></p>
+                <p><a href="index.html">Voltar para Home</a></p>
+            </div>
+        </div>
+
+        <!-- Register Box (Hidden by default) -->
+        <div id="register-box" class="auth-box" style="display: none;">
+            <h2>Crie sua conta</h2>
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="reg-nome">Nome Completo</label>
+                    <input type="text" id="reg-nome" required placeholder="Seu Nome">
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">E-mail</label>
+                    <input type="email" id="reg-email" required placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="reg-senha">Senha</label>
+                    <input type="password" id="reg-senha" required placeholder="********">
+                </div>
+                <button type="submit" class="btn-block">Cadastrar</button>
+            </form>
+            <div class="toggle-auth">
+                <p>Já tem uma conta? <a href="#" onclick="toggleAuthMode()">Faça Login</a></p>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
+

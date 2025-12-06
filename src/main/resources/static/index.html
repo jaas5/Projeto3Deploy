@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fala Sebrae - Opine. Construa. Empreenda.</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Font Awesome for Icons (Optional, using text chars if not available) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <img src="images/sebrae.png" alt="Sebrae" style="height: 120px; position: absolute; top: 60%; transform: translateY(-50%); left: 20px;">
+        </div>
+        <nav class="nav-links" style="margin-left: 180px;">
+            <a href="index.html">Fala Sebrae</a>
+            <a href="meus-feedbacks.html">Meus Feedbacks</a>
+            <a href="#">Gestores Públicos</a>
+            <a href="#">Empreendedores</a>
+            <a href="#">Atendimento</a>
+        </nav>
+        <div id="auth-btn-container">
+            <a href="login.html" class="btn-primary">Login / Cadastro</a>
+        </div>
+    </header>
+
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <img src="images/pessoas.jpg" alt="Pessoas reunidas em reunião" class="hero-bg">
+        <div class="hero-overlay">
+            <div class="hero-logo">
+                <img src="images/logo.png" alt="Fala Sebrae Logo">
+            </div>
+            <div class="hero-text">
+                <h1>
+                    <span class="text-opine">Opine.</span><br>
+                    <span class="text-construa">Construa.</span><br>
+                    <span class="text-empreenda">Empreenda.</span>
+                </h1>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        
+    <!-- Ranking Semanal -->
+    <section class="ranking-section">
+        <div class="ranking-header">
+            <h2><i class="fas fa-trophy"></i> Ranking Semanal</h2>
+        </div>
+        <div class="ranking-container" id="ranking-list">
+            <!-- Conteúdo será carregado via JavaScript -->
+            <p style="text-align:center; width:100%; color: white;">Carregando ranking...</p>
+        </div>
+    </section>
+
+    <!-- Atualizações Semanais -->
+    <section class="updates-section">
+        <h2 style="color: #333; margin-bottom: 20px;"><i class="far fa-bell"></i> Atualizações Semanais</h2>
+        <div class="updates-container">
+            <div class="update-card">
+                <h4>Novo sistema de notificações implementado</h4>
+                <p>Agora você receberá atualizações em tempo real sobre o status dos seus feedbacks.</p>
+                <div class="card-footer">
+                    <span><i class="far fa-clock"></i> 2min</span>
+                    <button class="arrow-btn-blue"><i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div class="update-card">
+                <h4>Novo sistema de notificações implementado</h4>
+                <p>Agora você receberá atualizações em tempo real sobre o status dos seus feedbacks.</p>
+                <div class="card-footer">
+                    <span><i class="far fa-clock"></i> 5min</span>
+                    <button class="arrow-btn-blue"><i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+            <div class="update-card">
+                <h4>Novo sistema de notificações implementado</h4>
+                <p>Agora você receberá atualizações em tempo real sobre o status dos seus feedbacks.</p>
+                <div class="card-footer">
+                    <span><i class="far fa-clock"></i> 3min</span>
+                    <button class="arrow-btn-blue"><i class="fas fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mural de Feedbacks -->
+    <section class="mural-section">
+        <div class="mural-title">
+            <h2><i class="far fa-comments"></i> Mural de Feedbacks</h2>
+        </div>
+        
+        <div class="mural-container">
+            <div class="mural-controls">
+                <div class="filters">
+                    <button class="filter-btn active" data-category="all">Todos</button>
+                    <button class="filter-btn" data-category="Conteudo">Conteúdo</button>
+                    <button class="filter-btn" data-category="Plataforma">Plataforma</button>
+                    <button class="filter-btn" data-category="Instrutor">Instrutor</button>
+                    <button class="filter-btn" data-category="Atendimento">Atendimento</button>
+                </div>
+                <button class="btn-avalie" onclick="openModal()">+ Avalie Agora</button>
+            </div>
+
+            <div id="feedback-list" class="feedback-list">
+                <!-- Feedbacks will be loaded here by script.js -->
+                <p style="text-align:center; color: #555;">Carregando feedbacks...</p>
+            </div>
+        </div>
+    </section>
+
+    </div>
+
+    <!-- Modal Avalie Agora -->
+    <div id="feedbackModal" class="modal">
+        <div class="modal-content custom-modal">
+            <div class="modal-top-bar">
+                <span class="back-link" onclick="closeModal()"><i class="fas fa-chevron-left"></i> Voltar</span>
+            </div>
+            
+            <div class="modal-header-custom">
+                <i class="far fa-comment-alt"></i>
+                <h2>Compartilhe seu feedback</h2>
+            </div>
+
+            <form id="feedbackForm" class="new-feedback-form">
+                
+                <div class="nps-section">
+                    <h3>Avalie sua experiência</h3>
+                    <p>De 0 a 10, o quanto você recomendaria este curso?</p>
+                    <div class="nps-options">
+                        <button type="button" class="nps-btn" data-value="0">0</button>
+                        <button type="button" class="nps-btn" data-value="1">1</button>
+                        <button type="button" class="nps-btn" data-value="2">2</button>
+                        <button type="button" class="nps-btn" data-value="3">3</button>
+                        <button type="button" class="nps-btn" data-value="4">4</button>
+                        <button type="button" class="nps-btn" data-value="5">5</button>
+                        <button type="button" class="nps-btn" data-value="6">6</button>
+                        <button type="button" class="nps-btn" data-value="7">7</button>
+                        <button type="button" class="nps-btn" data-value="8">8</button>
+                        <button type="button" class="nps-btn" data-value="9">9</button>
+                        <button type="button" class="nps-btn" data-value="10">10</button>
+                    </div>
+                    <div class="nps-legend">
+                        <span>Muito improvável</span>
+                        <span>Muito provável</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="titulo">Título</label>
+                    <input type="text" id="titulo" placeholder="Título do seu feedback" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="conteudo">Deixe seu comentário/feedback</label>
+                    <textarea id="conteudo" rows="5" placeholder="Conte-nos sobre sua experiência, sugestões e problemas..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="categoria">Categoria</label>
+                    <select id="categoria" required>
+                        <option value="" disabled selected>Selecione uma categoria</option>
+                        <option value="Conteudo">Conteúdo</option>
+                        <option value="Plataforma">Plataforma</option>
+                        <option value="Instrutor">Instrutor</option>
+                        <option value="Atendimento">Atendimento</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="curso">Curso/Serviço</label>
+                    <select id="curso" required>
+                        <option value="" disabled selected>Selecione um curso</option>
+                        <option value="Gestao_Financeira">Gestão Financeira</option>
+                        <option value="Marketing_Digital">Marketing Digital</option>
+                        <option value="Empreendedorismo">Empreendedorismo</option>
+                        <option value="Gestao_de_Pessoas">Gestão de Pessoas</option>
+                        <option value="Vendas">Vendas</option>
+                        <option value="Inovacao">Inovação</option>
+                    </select>
+                </div>
+
+                <div class="modal-footer-custom">
+                    <button type="button" class="btn-cancel" onclick="closeModal()"><i class="far fa-times-circle"></i> Cancelar</button>
+                    <button type="submit" class="btn-publish"><i class="fas fa-plus"></i> Publicar Feedback</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
