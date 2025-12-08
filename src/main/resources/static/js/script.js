@@ -897,7 +897,7 @@ async function fetchFeedbackDetails(id) {
         let statusText = fb.status;
         let cursoText = fb.curso ? fb.curso.replace(/_/g, ' ') : '';
         
-        if (statusText === 'Em_analise') statusText = 'Em Análise';
+        if (statusText === 'Em_analise' || statusText === 'Pendente' || statusText === 'PENDENTE') statusText = 'Em Análise';
         
         if (fb.status === 'Em Análise' || fb.status === 'EM_ANALISE' || fb.status === 'Em_analise') statusTagClass = 'tag tag-yellow-fill';
         else if (fb.status === 'Implementado' || fb.status === 'IMPLEMENTADO') statusTagClass = 'tag tag-green-fill';
