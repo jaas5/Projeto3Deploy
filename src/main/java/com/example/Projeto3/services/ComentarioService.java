@@ -25,6 +25,10 @@ public class ComentarioService {
         return comentarioRepository.findByFeedback_IdFeedback(feedbackId);
     }
 
+    public Optional<Comentario> getComentarioById(Long id) {
+        return comentarioRepository.findById(id);
+    }
+
     // Editar um comentário existente
     public Optional<Comentario> updateComentario(Long id, Comentario comentarioDetails) {
         Optional<Comentario> optionalComentario = comentarioRepository.findById(id);

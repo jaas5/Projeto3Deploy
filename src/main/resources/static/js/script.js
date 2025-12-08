@@ -181,7 +181,7 @@ function renderRanking(feedbacks) {
             <div class="card-footer">
                 <span><i class="far fa-clock"></i> ${formatDate(fb.dataCriacao || new Date())}</span>
                 <span class="tag tag-outline-blue">${fb.categoria || 'Geral'}</span>
-                <button class="arrow-btn"><i class="fas fa-arrow-right"></i></button>
+                <button class="arrow-btn" onclick="window.location.href='feedback-detalhes.html?id=${fb.idFeedback}'"><i class="fas fa-arrow-right"></i></button>
             </div>
         `;
         container.appendChild(card);
@@ -209,7 +209,7 @@ function renderFeedbacks(feedbacks) {
         let statusText = fb.status;
         let cursoText = fb.curso ? fb.curso.replace(/_/g, ' ') : '';
         
-        if (statusText === 'Em_analise') statusText = 'Em Análise';
+        if (statusText === 'Em_analise' || statusText === 'Pendente' || statusText === 'PENDENTE') statusText = 'Em Análise';
         
         if (fb.status === 'Em Análise' || fb.status === 'EM_ANALISE' || fb.status === 'Em_analise') statusTagClass = 'tag tag-yellow-fill';
         else if (fb.status === 'Implementado' || fb.status === 'IMPLEMENTADO') statusTagClass = 'tag tag-green-fill';
@@ -324,24 +324,65 @@ async function loadComments(feedbackId) {
             return;
         }
         const comentarios = await response.json();
-        const currentUser = getAuthUser();
-        
-        container.innerHTML = comentarios.map(c => {
-            const isOwner = currentUser && c.usuario && c.usuario.idUser === currentUser.idUser;
-            return `
-            <div class="comment-item">
-                <div class="comment-meta">
-                    <span><strong>${c.usuario ? c.usuario.username : 'Anônimo'}</strong> - ${formatDate(c.data)}</span>
-                    ${isOwner ? `<button onclick="deleteComment(${c.idComentario}, ${feedbackId})" style="border:none; background:none; cursor:pointer; color:#dc3545;" title="Excluir comentário"><i class="fas fa-trash"></i></button>` : ''}
-                </div>
-                <div>${c.mensagem}</div>
-            </div>
-        `}).join('');
+        const tree = buildCommentTree(comentarios);
+        renderCommentTreeForIndex(tree, container, feedbackId);
         
     } catch (error) {
         console.error(error);
         container.innerHTML = '<p>Erro ao carregar comentários.</p>';
     }
+}
+
+function renderCommentTreeForIndex(comments, container, feedbackId, level = 0) {
+    if (level === 0) container.innerHTML = ''; // Clear only on root call
+
+    if (comments.length === 0 && level === 0) {
+        container.innerHTML = '<p>Seja o primeiro a comentar!</p>';
+        return;
+    }
+
+    const currentUser = getAuthUser();
+
+    comments.forEach(c => {
+        const isOwner = currentUser && c.usuario && c.usuario.idUser === currentUser.idUser;
+        const commentEl = document.createElement('div');
+        commentEl.className = `comment-item ${level > 0 ? 'reply-item' : ''}`;
+        if (level > 0) {
+            commentEl.style.marginLeft = `${level * 20}px`;
+        }
+        
+        commentEl.innerHTML = `
+            <div class="comment-meta">
+                <span><strong>${c.usuario ? c.usuario.username : 'Anônimo'}</strong> - ${formatDate(c.data)}</span>
+                <div class="comment-actions">
+                    <button class="btn-reply" onclick="toggleReplyForm(${c.idComentario})"><i class="fas fa-reply"></i> Responder</button>
+                    ${isOwner ? `<button onclick="deleteComment(${c.idComentario}, ${feedbackId})" class="btn-delete-comment"><i class="fas fa-trash"></i></button>` : ''}
+                </div>
+            </div>
+            <div class="comment-body">${c.mensagem}</div>
+            
+            <!-- Reply Form Container -->
+            <div id="reply-form-${c.idComentario}" class="reply-form-container" style="display:none; margin-top: 10px;">
+                <form onsubmit="submitReply(event, ${feedbackId}, ${c.idComentario})">
+                    <textarea rows="2" placeholder="Sua resposta..." required style="width:100%; padding:8px; margin-bottom:8px; border-radius:8px; border:1px solid #ddd; font-family:inherit; resize:vertical;"></textarea>
+                    <div style="display:flex; gap:8px;">
+                        <button type="button" class="btn-small" onclick="toggleReplyForm(${c.idComentario})" style="background:#f0f0f0; color:#666;">Cancelar</button>
+                        <button type="submit" class="btn-small" style="background: var(--ranking-bg); color:white;">Enviar</button>
+                    </div>
+                </form>
+            </div>
+            
+            <!-- Children Container -->
+            <div id="children-${c.idComentario}"></div>
+        `;
+        
+        container.appendChild(commentEl);
+        
+        if (c.children && c.children.length > 0) {
+            const childrenContainer = commentEl.querySelector(`#children-${c.idComentario}`);
+            renderCommentTreeForIndex(c.children, childrenContainer, feedbackId, level + 1);
+        }
+    });
 }
 
 async function deleteComment(commentId, feedbackId) {
@@ -370,27 +411,14 @@ async function submitComment(event, feedbackId) {
     event.preventDefault();
     const textarea = event.target.querySelector('textarea');
     const mensagem = textarea.value;
-    
-    try {
-        const response = await fetch(`${API_BASE}/comentarios`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                mensagem: mensagem,
-                feedbackId: feedbackId,
-                userId: getAuthUser().idUser // Send current user ID
-            })
-        });
-        
-        if (response.ok) {
-            textarea.value = '';
-            loadComments(feedbackId);
-        } else {
-            showToast('Erro ao enviar comentário.', 'error');
-        }
-    } catch (error) {
-        console.error(error);
-    }
+    submitCommentToFeedback(feedbackId, mensagem, null);
+}
+
+async function submitReply(event, feedbackId, parentId) {
+    event.preventDefault();
+    const textarea = event.target.querySelector('textarea');
+    const mensagem = textarea.value;
+    submitCommentToFeedback(feedbackId, mensagem, parentId);
 }
 
 let selectedNPS = null;
@@ -447,15 +475,32 @@ async function submitFeedback(event) {
 
         if (response.ok) {
             showToast('Feedback enviado com sucesso!', 'success');
-            closeModal();
             
-            // Reset form
-            document.getElementById('feedbackForm').reset();
-            document.querySelectorAll('.nps-btn').forEach(b => b.classList.remove('selected'));
-            selectedNPS = null;
-
-            fetchFeedbacks(); // Refresh list
-            fetchRanking(); // Refresh ranking
+            // Check if we're on the create feedback page or modal
+            const page = window.location.pathname.split('/').pop();
+            if (page === 'criar-feedback.html') {
+                // Check where the user came from
+                const params = new URLSearchParams(window.location.search);
+                const from = params.get('from');
+                
+                // Redirect based on origin
+                setTimeout(() => {
+                    if (from === 'meus-feedbacks') {
+                        window.location.href = 'meus-feedbacks.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                }, 1500);
+            } else {
+                // Modal behavior (fallback)
+                closeModal();
+                // Reset form
+                document.getElementById('feedbackForm').reset();
+                document.querySelectorAll('.nps-btn').forEach(b => b.classList.remove('selected'));
+                selectedNPS = null;
+                fetchFeedbacks(); // Refresh list
+                fetchRanking(); // Refresh ranking
+            }
         } else {
             showToast('Erro ao enviar feedback.', 'error');
         }
@@ -810,5 +855,316 @@ window.addEventListener('click', (event) => {
     const feedbackModal = document.getElementById('feedbackModal');
     if (event.target == feedbackModal) {
         feedbackModal.style.display = "none";
+    }
+});
+
+
+// === FEEDBACK DETAILS PAGE LOGIC ===
+
+async function initFeedbackDetailsPage() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get('id');
+
+    if (!id) {
+        document.getElementById('feedback-detail-container').innerHTML = '<p>Feedback não encontrado.</p>';
+        return;
+    }
+
+    await fetchFeedbackDetails(id);
+    await loadDetailedComments(id);
+
+    // Setup Main Comment Form
+    const mainForm = document.getElementById('main-comment-form');
+    if (mainForm) {
+        mainForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const msg = document.getElementById('main-comment-text').value;
+            submitCommentToFeedback(id, msg, null); // null = no parent
+        });
+    }
+}
+
+async function fetchFeedbackDetails(id) {
+    const container = document.getElementById('feedback-detail-container');
+    try {
+        const response = await fetch(`${API_BASE}/feedbacks/${id}`);
+        if (!response.ok) throw new Error('Erro ao carregar feedback');
+        const fb = await response.json();
+        
+        // Tags
+        let catTagClass = 'tag tag-outline-blue';
+        let statusTagClass = '';
+        let statusText = fb.status;
+        let cursoText = fb.curso ? fb.curso.replace(/_/g, ' ') : '';
+        
+        if (statusText === 'Em_analise') statusText = 'Em Análise';
+        
+        if (fb.status === 'Em Análise' || fb.status === 'EM_ANALISE' || fb.status === 'Em_analise') statusTagClass = 'tag tag-yellow-fill';
+        else if (fb.status === 'Implementado' || fb.status === 'IMPLEMENTADO') statusTagClass = 'tag tag-green-fill';
+        else if (fb.status === 'Pendente' || fb.status === 'PENDENTE') statusTagClass = 'tag tag-yellow-fill';
+        else statusTagClass = 'tag tag-outline-blue';
+
+        container.innerHTML = `
+            <div class="feedback-detail-header">
+                <h2>${fb.titulo}</h2>
+            </div>
+            
+            <div class="feedback-detail-body" style="margin-bottom: 20px;">
+                <p>${fb.mensagem}</p>
+            </div>
+
+            <div class="feedback-detail-actions" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; border-top: 1px solid #eee; padding-top: 20px;">
+                <div class="feedback-tags">
+                    <span class="${catTagClass}">${fb.categoria || 'Geral'}</span>
+                    ${cursoText ? `<span class="tag tag-curso">${cursoText}</span>` : ''}
+                    ${fb.status ? `<span class="${statusTagClass}">${statusText}</span>` : ''}
+                </div>
+                
+                <div class="feedback-meta-info" style="display: flex; align-items: center; gap: 20px;">
+                    <span style="color: #666; font-size: 0.9rem;"><i class="fas fa-user"></i> ${fb.usuario ? fb.usuario.username : 'Anônimo'}</span>
+                    <span style="color: #666; font-size: 0.9rem;"><i class="far fa-clock"></i> ${formatDate(fb.dataCriacao || new Date())}</span>
+                    
+                    <div class="vote-wrapper" style="display: flex; align-items: center; gap: 10px;">
+                        <button class="vote-btn" id="vote-btn-${fb.idFeedback}" onclick="voteFeedback(${fb.idFeedback})">
+                            <i class="fas fa-arrow-up"></i>
+                        </button>
+                        <span class="vote-count" id="vote-count-${fb.idFeedback}" style="margin:0;">${fb.likes}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Check if user voted to highlight button
+        checkUserVotes();
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = '<p>Erro ao carregar detalhes.</p>';
+    }
+}
+
+async function loadDetailedComments(feedbackId) {
+    const container = document.getElementById('comments-container-full');
+    container.innerHTML = '<p>Carregando comentários...</p>';
+    
+    try {
+        const response = await fetch(`${API_BASE}/comentarios/feedback/${feedbackId}`);
+        if (response.status === 204) {
+            container.innerHTML = '<p>Seja o primeiro a comentar!</p>';
+            return;
+        }
+        const comentarios = await response.json();
+        const tree = buildCommentTree(comentarios);
+        renderCommentTree(tree, container, feedbackId);
+        
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = '<p>Erro ao carregar comentários.</p>';
+    }
+}
+
+function buildCommentTree(comments) {
+    const map = {};
+    const roots = [];
+    
+    // Sort by date first to ensure order
+    comments.sort((a, b) => new Date(a.data) - new Date(b.data));
+
+    comments.forEach(c => {
+        c.children = [];
+        map[c.idComentario] = c;
+    });
+    
+    comments.forEach(c => {
+        if (c.parentId && map[c.parentId]) {
+             map[c.parentId].children.push(c);
+        } else {
+            roots.push(c);
+        }
+    });
+    
+    return roots;
+}
+
+function renderCommentTree(comments, container, feedbackId, level = 0) {
+    if (level === 0) container.innerHTML = ''; // Clear only on root call
+
+    if (comments.length === 0 && level === 0) {
+        container.innerHTML = '<p>Nenhum comentário ainda.</p>';
+        return;
+    }
+
+    const currentUser = getAuthUser();
+
+    comments.forEach(c => {
+        const isOwner = currentUser && c.usuario && c.usuario.idUser === currentUser.idUser;
+        const commentEl = document.createElement('div');
+        commentEl.className = `comment-item ${level > 0 ? 'reply-item' : ''}`;
+        commentEl.style.marginLeft = `${level * 20}px`;
+        
+        commentEl.innerHTML = `
+            <div class="comment-meta">
+                <span><strong>${c.usuario ? c.usuario.username : 'Anônimo'}</strong> - ${formatDate(c.data)}</span>
+                <div class="comment-actions">
+                   <button class="btn-reply" onclick="toggleReplyForm(${c.idComentario})"><i class="fas fa-reply"></i> Responder</button>
+                   ${isOwner ? `<button onclick="deleteComment(${c.idComentario}, ${feedbackId}, true)" class="btn-delete-comment"><i class="fas fa-trash"></i></button>` : ''}
+                </div>
+            </div>
+            <div class="comment-body">${c.mensagem}</div>
+            
+            <!-- Reply Form Container -->
+            <div id="reply-form-${c.idComentario}" class="reply-form-container" style="display:none; margin-top: 10px;">
+                <form onsubmit="submitReply(event, ${feedbackId}, ${c.idComentario})">
+                    <textarea rows="2" placeholder="Sua resposta..." required style="width:100%; padding:5px; margin-bottom:5px;"></textarea>
+                    <button type="button" class="btn-small" onclick="toggleReplyForm(${c.idComentario})">Cancelar</button>
+                    <button type="submit" class="btn-small btn-primary">Enviar</button>
+                </form>
+            </div>
+            
+            <!-- Children Container -->
+            <div id="children-${c.idComentario}"></div>
+        `;
+        
+        container.appendChild(commentEl);
+        
+        if (c.children && c.children.length > 0) {
+            const childrenContainer = commentEl.querySelector(`#children-${c.idComentario}`);
+            renderCommentTree(c.children, childrenContainer, feedbackId, level + 1);
+        }
+    });
+}
+
+function toggleReplyForm(commentId) {
+    const form = document.getElementById(`reply-form-${commentId}`);
+    if (form.style.display === 'none') {
+        form.style.display = 'block';
+    } else {
+        form.style.display = 'none';
+    }
+}
+
+async function submitReply(event, feedbackId, parentId) {
+    event.preventDefault();
+    const textarea = event.target.querySelector('textarea');
+    const mensagem = textarea.value;
+    submitCommentToFeedback(feedbackId, mensagem, parentId);
+}
+
+async function submitCommentToFeedback(feedbackId, mensagem, parentId) {
+    const user = getAuthUser();
+    if (!user) {
+        showToast('Faça login para comentar.', 'info');
+        window.location.href = 'login.html';
+        return;
+    }
+
+    try {
+        const payload = {
+            mensagem: mensagem,
+            feedbackId: feedbackId,
+            userId: user.idUser,
+            parentId: parentId
+        };
+        
+        const response = await fetch(`${API_BASE}/comentarios`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        
+        if (response.ok) {
+            showToast('Comentário enviado!', 'success');
+            // Reload comments - check if we're on details page or index page
+            const page = window.location.pathname.split('/').pop();
+            if (page === 'feedback-detalhes.html') {
+                loadDetailedComments(feedbackId);
+                // Clear main form if it was a main comment
+                if (!parentId) {
+                    const mainText = document.getElementById('main-comment-text');
+                    if (mainText) mainText.value = '';
+                }
+            } else {
+                // On index.html, reload comments in the card
+                loadComments(feedbackId);
+                // Clear form in the card
+                if (!parentId) {
+                    const commentForm = document.querySelector(`#comments-${feedbackId} form`);
+                    if (commentForm) {
+                        const textarea = commentForm.querySelector('textarea');
+                        if (textarea) textarea.value = '';
+                    }
+                }
+            }
+        } else {
+            showToast('Erro ao enviar comentário.', 'error');
+        }
+    } catch (error) {
+        console.error(error);
+        showToast('Erro de conexão.', 'error');
+    }
+}
+
+// Override deleteComment to handle page reload on details page
+const originalDeleteComment = deleteComment;
+deleteComment = async function(commentId, feedbackId, isDetailsPage = false) {
+     showConfirmModal('Excluir comentário?', async () => {
+        const user = getAuthUser();
+        if (!user) return;
+
+        try {
+            const response = await fetch(`${API_BASE}/comentarios/${commentId}?userId=${user.idUser}`, {
+                method: 'DELETE'
+            });
+
+            if (response.ok || response.status === 204) {
+                if (isDetailsPage) {
+                    loadDetailedComments(feedbackId);
+                } else {
+                    loadComments(feedbackId); // Old function for index.html modal/card
+                }
+            } else {
+                showToast('Erro ao excluir comentário.', 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            showToast('Erro de conexão.', 'error');
+        }
+    });
+};
+
+// Add to DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    const page = window.location.pathname.split('/').pop();
+    if (page === 'feedback-detalhes.html') {
+        initFeedbackDetailsPage();
+    }
+    
+    if (page === 'criar-feedback.html') {
+        setupNPS(); // Init NPS listeners
+        const feedbackForm = document.getElementById('feedbackForm');
+        if (feedbackForm) feedbackForm.addEventListener('submit', submitFeedback);
+        
+        // Setup back link based on origin
+        const params = new URLSearchParams(window.location.search);
+        const from = params.get('from');
+        const backLink = document.getElementById('back-link');
+        if (backLink) {
+            if (from === 'meus-feedbacks') {
+                backLink.href = 'meus-feedbacks.html';
+            } else {
+                backLink.href = 'index.html';
+            }
+        }
+        
+        // Check Auth
+        const user = getAuthUser();
+        const authBtn = document.getElementById('auth-btn-container');
+        if (user && authBtn) {
+            authBtn.innerHTML = `
+                <div class="user-profile" onclick="logout()" title="Sair">
+                    <span>Olá, ${user.username}</span>
+                    <div class="avatar"><i class="fas fa-user"></i></div>
+                </div>
+            `;
+        }
     }
 });

@@ -54,6 +54,16 @@ public class ComentarioController {
         comentario.setUsuario(usuarioOpt.get()); // Link user
         comentario.setData(LocalDateTime.now());
 
+        // Handle parent comment
+        if (request.parentId() != null) {
+            Optional<Comentario> parentOpt = comentarioService.getComentarioById(request.parentId());
+            if (parentOpt.isPresent()) {
+                comentario.setParentComentario(parentOpt.get());
+            } else {
+                return ResponseEntity.badRequest().build();
+            }
+        }
+
         Comentario novoComentario = comentarioService.createComentario(comentario);
         return ResponseEntity.ok(novoComentario);
     }

@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fala Sebrae - Opine. Construa. Empreenda.</title>
+    <title>Criar Feedback - Fala Sebrae</title>
     <link rel="stylesheet" href="css/styles.css">
-    <!-- Font Awesome for Icons (Optional, using text chars if not available) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
@@ -27,102 +26,15 @@
         </div>
     </header>
 
-    <!-- Hero Banner -->
-    <div class="hero-banner">
-        <img src="images/pessoas.jpg" alt="Pessoas reunidas em reunião" class="hero-bg">
-        <div class="hero-overlay">
-            <div class="hero-logo">
-                <img src="images/logo.png" alt="Fala Sebrae Logo">
-            </div>
-            <div class="hero-text">
-                <h1>
-                    <span class="text-opine">Opine.</span><br>
-                    <span class="text-construa">Construa.</span><br>
-                    <span class="text-empreenda">Empreenda.</span>
-                </h1>
-            </div>
-        </div>
-    </div>
-
-    <div class="container">
+    <div class="container" style="margin-top: 40px; max-width: 800px;">
         
-    <!-- Ranking Semanal -->
-    <section class="ranking-section">
-        <div class="ranking-header">
-            <h2><i class="fas fa-trophy"></i> Ranking Semanal</h2>
-        </div>
-        <div class="ranking-container" id="ranking-list">
-            <!-- Conteúdo será carregado via JavaScript -->
-            <p style="text-align:center; width:100%; color: white;">Carregando ranking...</p>
-        </div>
-    </section>
+        <a href="#" id="back-link" class="back-link-minimal" style="display:inline-block; margin-bottom: 20px; color: var(--primary-blue); text-decoration: none;">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </a>
 
-    <!-- Atualizações Semanais -->
-    <section class="updates-section">
-        <h2 style="color: #333; margin-bottom: 20px;"><i class="far fa-bell"></i> Atualizações Semanais</h2>
-        <div class="updates-container">
-            <div class="update-card">
-                <h4>Novo sistema de notificações implementado</h4>
-                <p>Agora você receberá atualizações em tempo real sobre o status dos seus feedbacks.</p>
-                <div class="card-footer">
-                    <span><i class="far fa-clock"></i> 2min</span>
-                    <button class="arrow-btn-blue"><i class="fas fa-arrow-right"></i></button>
-                </div>
-            </div>
-            <div class="update-card">
-                <h4>Novo sistema de notificações implementado</h4>
-                <p>Agora você receberá atualizações em tempo real sobre o status dos seus feedbacks.</p>
-                <div class="card-footer">
-                    <span><i class="far fa-clock"></i> 5min</span>
-                    <button class="arrow-btn-blue"><i class="fas fa-arrow-right"></i></button>
-                </div>
-            </div>
-            <div class="update-card">
-                <h4>Novo sistema de notificações implementado</h4>
-                <p>Agora você receberá atualizações em tempo real sobre o status dos seus feedbacks.</p>
-                <div class="card-footer">
-                    <span><i class="far fa-clock"></i> 3min</span>
-                    <button class="arrow-btn-blue"><i class="fas fa-arrow-right"></i></button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Mural de Feedbacks -->
-    <section class="mural-section">
-        <div class="mural-title">
-            <h2><i class="far fa-comments"></i> Mural de Feedbacks</h2>
-        </div>
-        
-        <div class="mural-container">
-            <div class="mural-controls">
-                <div class="filters">
-                    <button class="filter-btn active" data-category="all">Todos</button>
-                    <button class="filter-btn" data-category="Conteudo">Conteúdo</button>
-                    <button class="filter-btn" data-category="Plataforma">Plataforma</button>
-                    <button class="filter-btn" data-category="Instrutor">Instrutor</button>
-                    <button class="filter-btn" data-category="Atendimento">Atendimento</button>
-                </div>
-                <button class="btn-avalie" onclick="window.location.href='criar-feedback.html'">+ Avalie Agora</button>
-            </div>
-
-            <div id="feedback-list" class="feedback-list">
-                <!-- Feedbacks will be loaded here by script.js -->
-                <p style="text-align:center; color: #555;">Carregando feedbacks...</p>
-            </div>
-        </div>
-    </section>
-
-    </div>
-
-    <!-- Modal Avalie Agora -->
-    <div id="feedbackModal" class="modal">
-        <div class="modal-content custom-modal">
-            <div class="modal-top-bar">
-                <span class="back-link" onclick="closeModal()"><i class="fas fa-chevron-left"></i> Voltar</span>
-            </div>
+        <div class="feedback-create-container" style="background: white; border-radius: 20px; padding: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
             
-            <div class="modal-header-custom">
+            <div class="modal-header-custom" style="margin-bottom: 30px;">
                 <i class="far fa-comment-alt"></i>
                 <h2>Compartilhe seu feedback</h2>
             </div>
@@ -186,13 +98,15 @@
                 </div>
 
                 <div class="modal-footer-custom">
-                    <button type="button" class="btn-cancel" onclick="closeModal()"><i class="far fa-times-circle"></i> Cancelar</button>
+                    <button type="button" class="btn-cancel" onclick="window.location.href='index.html'"><i class="far fa-times-circle"></i> Cancelar</button>
                     <button type="submit" class="btn-publish"><i class="fas fa-plus"></i> Publicar Feedback</button>
                 </div>
             </form>
         </div>
+
     </div>
 
     <script src="js/script.js"></script>
 </body>
 </html>
+

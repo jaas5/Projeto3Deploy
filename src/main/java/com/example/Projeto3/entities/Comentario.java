@@ -31,5 +31,14 @@ public class Comentario {
     @JsonIgnoreProperties({"feedbacks", "password", "email"}) // Avoid infinite recursion and hide sensitive data
     private Usuario usuario;
 
+    @ManyToOne
+    @JoinColumn(name = "parentId")
+    @JsonIgnoreProperties({"feedback", "usuario", "parentComentario"})
+    private Comentario parentComentario;
+
     private LocalDateTime data = LocalDateTime.now();
+
+    public Long getParentId() {
+        return parentComentario != null ? parentComentario.getIdComentario() : null;
+    }
 }
