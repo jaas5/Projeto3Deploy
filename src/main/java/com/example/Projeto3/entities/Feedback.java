@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @Setter
 @NoArgsConstructor
-
 public class Feedback {
 
     @Id
@@ -42,17 +41,19 @@ public class Feedback {
     @Enumerated(EnumType.STRING)
     private Status status = Status.Pendente;
 
-    private int likes = 0; // New field for votes
+    private int likes = 0;
 
     private int nps;
 
+    @Column(columnDefinition = "TEXT")
+    private String resposta;
 
     @OneToMany(mappedBy = "feedback", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<Comentario> comentarios;
 
     @OneToMany(mappedBy = "feedback", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore // Prevent infinite recursion or huge payload, we just need cascade delete
+    @JsonIgnore
     private List<Voto> votos;
 
 }
