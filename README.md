@@ -1,5 +1,8 @@
 # FalaSEBRAE! (Deploy)
 
+🔗 Repositório principal: [Projeto3](https://github.com/SEU-USUARIO/Projeto3)  
+🔗 Repositório de deploy: [Projeto3Deploy](https://github.com/SEU-USUARIO/Projeto3Deploy)
+
 Repositório dedicado exclusivamente ao processo de deploy, contendo as configurações, builds e arquivos necessários para publicar a aplicação em produção.
 
 ## 📌 Objetivo
