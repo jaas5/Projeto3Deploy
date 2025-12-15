@@ -21,13 +21,13 @@ public class UsuarioController {
     }
 
     // Endpoint para CRIAR (POST) -> /api/usuarios
-    /*
+    // comentar abaixo para travar usuarios
     @PostMapping
     public ResponseEntity<Usuario> createUsuario(@RequestBody Usuario usuario) {
         Usuario novoUsuario = usuarioService.createUsuario(usuario);
         return ResponseEntity.status(HttpStatus.CREATED).body(novoUsuario);
     }
-    */
+    // comentar acima
 
     // Endpoint para LER TODOS (GET) -> /api/usuarios
     @GetMapping
