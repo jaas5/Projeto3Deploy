@@ -3,6 +3,8 @@
 🔗 Repositório principal: [Projeto3](https://github.com/Felipesmarq/Projeto3)  
 🔗 Repositório de deploy: [Projeto3Deploy](https://github.com/jaas5/Projeto3Deploy)
 
+Deploy: https://projeto3deploy-production.up.railway.app/
+
 Repositório dedicado exclusivamente ao processo de deploy, contendo as configurações, builds e arquivos necessários para publicar a aplicação em produção.
 
 ## 📌 Objetivo
@@ -21,6 +23,6 @@ O **Projeto3Deploy** contém somente a versão preparada para produção, manten
 ## 🚀 Como Fazer o Deploy
 1. Clone o repositório:
    ```bash
-   git clone https://github.com/SEU-USUARIO/Projeto3Deploy.git
+   git clone https://github.com/jaas5/Projeto3Deploy.git
 2. Configure as variáveis de ambiente na plataforma escolhida.
 3. Envie o deploy diretamente através da ferramenta (Railway, Render, etc.).
